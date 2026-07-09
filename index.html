@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Practicum Hours · Delan Padiz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F9F8F4;
+    --ink: #2D3A31;
+    --ink-soft: #55665B;
+    --sage: #8C9A84;
+    --clay: #DCCFC2;
+    --clay-soft: #F2F0EB;
+    --stone: #E6E2DA;
+    --terracotta: #C27B66;
+    --white: #FFFFFF;
+    --shadow-sm: 0 4px 6px -1px rgba(45, 58, 49, 0.05);
+    --shadow-md: 0 10px 15px -3px rgba(45, 58, 49, 0.05);
+    --shadow-lg: 0 20px 40px -10px rgba(45, 58, 49, 0.08);
+    --serif: "Playfair Display", Georgia, "Times New Roman", serif;
+    --sans: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Paper grain — mandatory per design system */
+  .grain {
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    opacity: 0.015;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+  }
+
+  .wrap {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 48px 20px 96px;
+  }
+
+  h1, h2, h3 { font-family: var(--serif); font-weight: 600; line-height: 1.15; }
+  h1 i, h2 i { font-style: italic; }
+
+  /* ---------- Header ---------- */
+  header { text-align: center; padding: 24px 0 40px; }
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    margin-bottom: 14px;
+  }
+  header h1 { font-size: clamp(2.6rem, 7vw, 4.5rem); }
+  .subtitle { color: var(--ink-soft); margin-top: 12px; font-size: 1.05rem; }
+  .site-row {
+    margin: 28px auto 0;
+    max-width: 460px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .site-row label {
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    white-space: nowrap;
+  }
+  #siteName {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.25rem;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--stone);
+    padding: 4px 2px 6px;
+    text-align: center;
+    min-width: 260px;
+    transition: border-color 0.3s ease-out;
+  }
+  #siteName:focus { outline: none; border-bottom-color: var(--sage); }
+  #siteName::placeholder { color: #A9B2A9; font-style: italic; }
+
+  /* ---------- Cards ---------- */
+  .card {
+    background: var(--white);
+    border: 1px solid var(--stone);
+    border-radius: 24px;
+    box-shadow: var(--shadow-md);
+    padding: 28px;
+  }
+
+  section { margin-top: 28px; }
+
+  /* ---------- Dashboard ---------- */
+  .dashboard {
+    display: grid;
+    grid-template-columns: 5fr 7fr;
+    gap: 24px;
+    align-items: stretch;
+  }
+  .ring-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 36px 28px;
+  }
+  .ring-wrap { position: relative; }
+  .ring-wrap svg { display: block; transform: rotate(-90deg); }
+  .ring-track { fill: none; stroke: var(--stone); }
+  .ring-value {
+    fill: none;
+    stroke: var(--sage);
+    stroke-linecap: round;
+    transition: stroke-dashoffset 1s ease-out, stroke 0.5s ease-out;
+  }
+  .ring-value.terracotta { stroke: var(--terracotta); }
+  .ring-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .big-number {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 4.2rem;
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+  .ring-goal { color: var(--ink-soft); font-size: 0.95rem; margin-top: 6px; }
+  .ring-hm { color: var(--ink-soft); font-size: 0.85rem; }
+  .goal-badge {
+    display: none;
+    margin-top: 10px;
+    background: var(--terracotta);
+    color: var(--white);
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 6px 16px;
+  }
+  .goal-badge.show { display: inline-block; }
+  .ring-label {
+    margin-top: 18px;
+    font-family: var(--serif);
+    font-size: 1.3rem;
+  }
+
+  .dash-right { display: flex; flex-direction: column; gap: 24px; }
+  .direct-card {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    padding: 24px 28px;
+  }
+  .direct-card .ring-center .big-number { font-size: 1.9rem; }
+  .direct-copy h3 { font-size: 1.35rem; margin-bottom: 6px; }
+  .direct-copy p { color: var(--ink-soft); font-size: 0.95rem; }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    flex: 1;
+  }
+  .stat {
+    background: var(--clay-soft);
+    border: 1px solid var(--stone);
+    border-radius: 20px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  .stat .label {
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+  .stat .value {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 1.7rem;
+    margin-top: 4px;
+  }
+  .stat .hint { font-size: 0.8rem; color: var(--ink-soft); margin-top: 2px; }
+
+  /* ---------- Semesters ---------- */
+  .semester-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .semester-card h3 { font-size: 1.3rem; }
+  .semester-card .dates { color: var(--ink-soft); font-size: 0.9rem; margin-top: 4px; }
+  .semester-card .days {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: 2.1rem;
+    margin-top: 12px;
+  }
+  .semester-card .days span { font-family: var(--sans); font-weight: 400; font-size: 0.95rem; color: var(--ink-soft); }
+  .semester-note {
+    margin-top: 16px;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+    font-style: italic;
+  }
+
+  /* ---------- Form ---------- */
+  .form-card h2 { font-size: 1.9rem; margin-bottom: 22px; }
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px 24px;
+    align-items: end;
+  }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label {
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+  }
+  .field input, .field select {
+    font-family: var(--sans);
+    font-size: 1rem;
+    color: var(--ink);
+    background: var(--clay-soft);
+    border: 1px solid var(--stone);
+    border-radius: 999px;
+    padding: 11px 16px;
+    min-height: 46px;
+    transition: border-color 0.3s ease-out, box-shadow 0.3s ease-out;
+  }
+  .field input:focus, .field select:focus {
+    outline: none;
+    border-color: var(--sage);
+    box-shadow: 0 0 0 2px rgba(140, 154, 132, 0.25);
+  }
+  .field.note-field { grid-column: 1 / span 3; }
+  .form-actions { display: flex; align-items: center; gap: 16px; }
+
+  .btn {
+    font-family: var(--sans);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    padding: 14px 28px;
+    min-height: 46px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-out, color 0.3s ease-out, border-color 0.3s ease-out;
+  }
+  .btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--sage); }
+  .btn-primary { background: var(--ink); color: var(--white); }
+  .btn-primary:hover { background: var(--terracotta); }
+  .btn-secondary { background: transparent; color: var(--ink); border-color: var(--sage); }
+  .btn-secondary:hover { background: var(--clay-soft); }
+  .btn-small { padding: 9px 18px; min-height: 40px; font-size: 0.68rem; }
+
+  .form-msg { margin-top: 16px; font-size: 0.95rem; display: none; }
+  .form-msg.error { display: block; color: #A0522D; }
+  .form-msg.success { display: block; color: var(--sage); font-weight: 600; }
+  .overlap-warning {
+    display: none;
+    margin-top: 16px;
+    background: #FBF3EF;
+    border: 1px solid var(--terracotta);
+    border-radius: 20px;
+    padding: 16px 20px;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .overlap-warning.show { display: flex; }
+  .overlap-warning p { flex: 1; min-width: 220px; font-size: 0.95rem; }
+
+  /* ---------- Table ---------- */
+  .table-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+  .table-head h2 { font-size: 1.9rem; }
+  .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+  .chip {
+    font-family: var(--sans);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    border: 1px solid var(--stone);
+    background: transparent;
+    color: var(--ink-soft);
+    border-radius: 999px;
+    padding: 9px 18px;
+    min-height: 40px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-out, color 0.3s ease-out, border-color 0.3s ease-out;
+  }
+  .chip:hover { border-color: var(--sage); }
+  .chip:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--sage); }
+  .chip[aria-pressed="true"] { background: var(--ink); color: var(--white); border-color: var(--ink); }
+
+  .subtotal { color: var(--ink-soft); font-size: 0.92rem; margin-bottom: 14px; }
+  .subtotal strong { color: var(--ink); }
+
+  .table-scroll { overflow-x: auto; border-radius: 16px; }
+  table { width: 100%; border-collapse: collapse; min-width: 640px; }
+  th {
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--stone);
+    white-space: nowrap;
+  }
+  td { padding: 13px 14px; border-bottom: 1px solid var(--clay-soft); font-size: 0.95rem; vertical-align: middle; }
+  tbody tr { transition: background-color 0.3s ease-out; }
+  tbody tr:hover { background: var(--clay-soft); }
+  td.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.note-cell { color: var(--ink-soft); max-width: 260px; }
+
+  .type-pill {
+    display: inline-block;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    padding: 5px 14px;
+    white-space: nowrap;
+  }
+  .type-direct { background: rgba(140, 154, 132, 0.22); color: #4C5E50; }
+  .type-supervision { background: rgba(194, 123, 102, 0.18); color: #94553F; }
+  .type-indirect { background: var(--stone); color: var(--ink-soft); }
+
+  .del-btn {
+    font-family: var(--sans);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    background: transparent;
+    border: 1px solid var(--stone);
+    border-radius: 999px;
+    padding: 7px 14px;
+    min-height: 34px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-out, color 0.3s ease-out, border-color 0.3s ease-out;
+  }
+  .del-btn:hover { border-color: var(--terracotta); color: var(--terracotta); }
+  .del-btn:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--white), 0 0 0 4px var(--sage); }
+  .del-btn.armed { background: var(--terracotta); border-color: var(--terracotta); color: var(--white); }
+
+  .empty-state {
+    text-align: center;
+    padding: 48px 20px;
+    color: var(--ink-soft);
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.15rem;
+  }
+
+  /* ---------- Backup ---------- */
+  .backup-row {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 32px;
+  }
+  .import-confirm {
+    display: none;
+    margin: 20px auto 0;
+    max-width: 640px;
+    background: #FBF3EF;
+    border: 1px solid var(--terracotta);
+    border-radius: 20px;
+    padding: 18px 22px;
+    text-align: center;
+  }
+  .import-confirm.show { display: block; }
+  .import-confirm p { font-size: 0.95rem; margin-bottom: 14px; }
+  .import-confirm .btns { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+  .backup-msg { text-align: center; margin-top: 14px; font-size: 0.92rem; color: var(--sage); font-weight: 600; display: none; }
+  .backup-msg.show { display: block; }
+  .backup-msg.error { color: #A0522D; }
+
+  footer {
+    margin-top: 56px;
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+    line-height: 1.7;
+  }
+  .vine {
+    display: block;
+    margin: 0 auto 18px;
+    width: 140px;
+    height: 20px;
+    stroke: var(--sage);
+    fill: none;
+    stroke-width: 1;
+    opacity: 0.7;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 900px) {
+    .dashboard { grid-template-columns: 1fr; }
+    .semester-grid { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: repeat(2, 1fr); }
+    .field.note-field { grid-column: 1 / -1; }
+    .form-actions { grid-column: 1 / -1; }
+  }
+  @media (max-width: 520px) {
+    .wrap { padding: 32px 14px 72px; }
+    .form-grid { grid-template-columns: 1fr; }
+    .big-number { font-size: 3.4rem; }
+    .direct-card { flex-direction: column; text-align: center; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .card { padding: 20px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="wrap">
+  <header>
+    <p class="eyebrow">2026–2027 · Practicum I &amp; II</p>
+    <h1>Delan <i>Padiz</i></h1>
+    <p class="subtitle">MA Clinical &amp; Counseling Psychology · William Paterson University</p>
+    <div class="site-row">
+      <label for="siteName">Practicum site</label>
+      <input type="text" id="siteName" placeholder="Enter your site name" autocomplete="off">
+    </div>
+  </header>
+
+  <!-- Progress dashboard -->
+  <section class="dashboard" aria-label="Progress overview">
+    <div class="card ring-card">
+      <div class="ring-wrap">
+        <svg width="270" height="270" viewBox="0 0 270 270" aria-hidden="true">
+          <circle class="ring-track" cx="135" cy="135" r="120" stroke-width="16"></circle>
+          <circle class="ring-value" id="ringTotal" cx="135" cy="135" r="120" stroke-width="16"></circle>
+        </svg>
+        <div class="ring-center">
+          <div class="big-number" id="totalHoursBig" aria-live="polite">0</div>
+          <div class="ring-goal">of 600 hours</div>
+          <div class="ring-hm" id="totalHM">0h 0m logged</div>
+          <span class="goal-badge" id="totalBadge">Goal reached</span>
+        </div>
+      </div>
+      <div class="ring-label">Total <i>practicum</i> hours</div>
+    </div>
+
+    <div class="dash-right">
+      <div class="card direct-card">
+        <div class="ring-wrap">
+          <svg width="120" height="120" viewBox="0 0 120 120" aria-hidden="true">
+            <circle class="ring-track" cx="60" cy="60" r="50" stroke-width="10"></circle>
+            <circle class="ring-value terracotta" id="ringDirect" cx="60" cy="60" r="50" stroke-width="10"></circle>
+          </svg>
+          <div class="ring-center">
+            <div class="big-number" id="directHoursBig">0</div>
+          </div>
+        </div>
+        <div class="direct-copy">
+          <h3>Direct client contact</h3>
+          <p><span id="directHM">0h 0m</span> of the required 240 hours</p>
+          <span class="goal-badge" id="directBadge">Goal reached</span>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat">
+          <span class="label">Hours remaining</span>
+          <span class="value" id="statRemaining">600</span>
+          <span class="hint">toward 600 total</span>
+        </div>
+        <div class="stat">
+          <span class="label">Direct remaining</span>
+          <span class="value" id="statDirectRemaining">240</span>
+          <span class="hint">toward 240 direct</span>
+        </div>
+        <div class="stat">
+          <span class="label">Supervision</span>
+          <span class="value" id="statSupervision">0</span>
+          <span class="hint">hours logged</span>
+        </div>
+        <div class="stat">
+          <span class="label">Indirect</span>
+          <span class="value" id="statIndirect">0</span>
+          <span class="hint">hours logged</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Semester timeline -->
+  <section aria-label="Semester dates">
+    <div class="semester-grid">
+      <div class="card semester-card">
+        <h3>Fall <i>2026</i></h3>
+        <p class="dates">Aug 26 – Dec 12, 2026</p>
+        <p class="days" id="fallDays"></p>
+      </div>
+      <div class="card semester-card">
+        <h3>Spring <i>2027</i></h3>
+        <p class="dates">Jan 21 – May 12, 2027</p>
+        <p class="days" id="springDays"></p>
+      </div>
+      <div class="card semester-card">
+        <h3>12-month <i>window</i></h3>
+        <p class="dates" id="windowDates">Starts with your first logged entry</p>
+        <p class="days" id="windowDays"></p>
+      </div>
+    </div>
+    <p class="semester-note">Semester end dates are for reference only — your hours can continue past May 12. The program limit is completing the 600 hours within 12 months.</p>
+  </section>
+
+  <!-- Log form -->
+  <section class="card form-card">
+    <h2>Log <i>hours</i></h2>
+    <form id="logForm" novalidate>
+      <div class="form-grid">
+        <div class="field">
+          <label for="entryDate">Date</label>
+          <input type="date" id="entryDate" required>
+        </div>
+        <div class="field">
+          <label for="timeIn">Time in</label>
+          <input type="time" id="timeIn" required>
+        </div>
+        <div class="field">
+          <label for="timeOut">Time out</label>
+          <input type="time" id="timeOut" required>
+        </div>
+        <div class="field">
+          <label for="category">Type of time</label>
+          <select id="category" required>
+            <option value="direct">Direct client contact</option>
+            <option value="supervision">Supervision</option>
+            <option value="indirect">Indirect / other</option>
+          </select>
+        </div>
+        <div class="field note-field">
+          <label for="note">Note <span style="text-transform:none;letter-spacing:0;">(optional)</span></label>
+          <input type="text" id="note" maxlength="200" placeholder="e.g. Intake session, group observation" autocomplete="off">
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Log hours</button>
+        </div>
+      </div>
+      <p class="form-msg" id="formMsg" role="alert"></p>
+      <div class="overlap-warning" id="overlapWarning">
+        <p id="overlapText"></p>
+        <button type="button" class="btn btn-secondary btn-small" id="overlapConfirm">Log anyway</button>
+        <button type="button" class="btn btn-secondary btn-small" id="overlapCancel">Cancel</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- Hours table -->
+  <section class="card">
+    <div class="table-head">
+      <h2>Hours <i>log</i></h2>
+      <div class="chips" role="group" aria-label="Filter entries by type">
+        <button type="button" class="chip" data-filter="all" aria-pressed="true">All</button>
+        <button type="button" class="chip" data-filter="direct" aria-pressed="false">Direct client</button>
+        <button type="button" class="chip" data-filter="supervision" aria-pressed="false">Supervision</button>
+        <button type="button" class="chip" data-filter="indirect" aria-pressed="false">Indirect</button>
+      </div>
+      <button type="button" class="btn btn-secondary btn-small" id="sortBtn" aria-label="Toggle sort order">Newest first ↓</button>
+    </div>
+    <p class="subtotal" id="subtotal" aria-live="polite"></p>
+    <div class="table-scroll">
+      <table id="hoursTable">
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Time in</th>
+            <th scope="col">Time out</th>
+            <th scope="col">Duration</th>
+            <th scope="col">Type</th>
+            <th scope="col">Note</th>
+            <th scope="col"><span class="sr-only">Actions</span></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+      <p class="empty-state" id="emptyState">No hours logged yet — your first entry starts the clock.</p>
+    </div>
+  </section>
+
+  <!-- Backup -->
+  <div class="backup-row">
+    <button type="button" class="btn btn-secondary" id="exportBtn">Export backup</button>
+    <button type="button" class="btn btn-secondary" id="importBtn">Import backup</button>
+    <input type="file" id="importFile" accept=".json,application/json" hidden>
+  </div>
+  <div class="import-confirm" id="importConfirm">
+    <p id="importText"></p>
+    <div class="btns">
+      <button type="button" class="btn btn-primary btn-small" id="importAccept">Restore backup</button>
+      <button type="button" class="btn btn-secondary btn-small" id="importCancel">Cancel</button>
+    </div>
+  </div>
+  <p class="backup-msg" id="backupMsg" role="status"></p>
+
+  <footer>
+    <svg class="vine" viewBox="0 0 140 20" aria-hidden="true"><path d="M0 10 C 20 2, 35 18, 55 10 S 90 2, 110 10 S 130 16, 140 10"/></svg>
+    <p>WPU MA in Clinical &amp; Counseling Psychology practicum requirement: <strong>600 supervised hours</strong>, including <strong>240 direct client contact hours</strong>, completed within <strong>12 months</strong>.</p>
+    <p>Hours are saved automatically in this browser. Export a backup now and then to keep them safe.</p>
+  </footer>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var STORAGE_KEY = "practicum-tracker-v1";
+  var GOAL_TOTAL_MIN = 600 * 60;
+  var GOAL_DIRECT_MIN = 240 * 60;
+  var CATEGORY_LABELS = {
+    direct: "Direct client",
+    supervision: "Supervision",
+    indirect: "Indirect"
+  };
+  var FALL_END = new Date(2026, 11, 12);   // Dec 12, 2026
+  var SPRING_END = new Date(2027, 4, 12);  // May 12, 2027
+
+  var state = loadState();
+  var sortDesc = true;
+  var currentFilter = "all";
+  var pendingEntry = null;
+  var pendingImport = null;
+  var msgTimer = null;
+  var backupMsgTimer = null;
+
+  // ---------- Persistence ----------
+  function loadState() {
+    var fallback = { siteName: "", entries: [] };
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return fallback;
+      var data = JSON.parse(raw);
+      if (!data || typeof data !== "object" || !Array.isArray(data.entries)) return fallback;
+      return {
+        siteName: typeof data.siteName === "string" ? data.siteName : "",
+        entries: data.entries.filter(isValidEntry)
+      };
+    } catch (e) {
+      return fallback;
+    }
+  }
+
+  function saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      showBackupMsg("Could not save to this browser. Export a backup to keep your hours.", true);
+    }
+  }
+
+  function isValidEntry(e) {
+    return e && typeof e === "object" &&
+      /^\d{4}-\d{2}-\d{2}$/.test(e.date) &&
+      /^\d{2}:\d{2}$/.test(e.timeIn) &&
+      /^\d{2}:\d{2}$/.test(e.timeOut) &&
+      CATEGORY_LABELS.hasOwnProperty(e.category) &&
+      toMinutes(e.timeOut) > toMinutes(e.timeIn);
+  }
+
+  // ---------- Time math (integer minutes only) ----------
+  function toMinutes(hhmm) {
+    var parts = hhmm.split(":");
+    return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+  }
+
+  function entryMinutes(e) {
+    return toMinutes(e.timeOut) - toMinutes(e.timeIn);
+  }
+
+  function sumMinutes(entries) {
+    var total = 0;
+    for (var i = 0; i < entries.length; i++) total += entryMinutes(entries[i]);
+    return total;
+  }
+
+  function fmtHM(min) {
+    return Math.floor(min / 60) + "h " + (min % 60) + "m";
+  }
+
+  function fmtDecimalHours(min) {
+    var v = Math.round((min / 60) * 10) / 10;
+    return (v % 1 === 0) ? String(v) : v.toFixed(1);
+  }
+
+  function fmtTime12(hhmm) {
+    var m = toMinutes(hhmm);
+    var h = Math.floor(m / 60);
+    var mins = m % 60;
+    var suffix = h >= 12 ? "PM" : "AM";
+    var h12 = h % 12;
+    if (h12 === 0) h12 = 12;
+    return h12 + ":" + (mins < 10 ? "0" : "") + mins + " " + suffix;
+  }
+
+  function parseLocalDate(iso) {
+    var p = iso.split("-");
+    return new Date(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10));
+  }
+
+  function fmtDate(iso) {
+    return parseLocalDate(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  }
+
+  function todayISO() {
+    var d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+
+  function daysUntil(target) {
+    var now = new Date();
+    var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return Math.round((target - today) / 86400000);
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  function makeId() {
+    return (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+      : Date.now() + "-" + Math.random().toString(36).slice(2, 10);
+  }
+
+  // ---------- Rings ----------
+  function setRing(circleEl, ratio) {
+    var r = circleEl.r.baseVal.value;
+    var c = 2 * Math.PI * r;
+    var clamped = Math.max(0, Math.min(1, ratio));
+    circleEl.style.strokeDasharray = c;
+    circleEl.style.strokeDashoffset = c * (1 - clamped);
+  }
+
+  // ---------- Render ----------
+  function render() {
+    var entries = state.entries;
+    var totalMin = sumMinutes(entries);
+    var directMin = sumMinutes(entries.filter(function (e) { return e.category === "direct"; }));
+    var supervisionMin = sumMinutes(entries.filter(function (e) { return e.category === "supervision"; }));
+    var indirectMin = sumMinutes(entries.filter(function (e) { return e.category === "indirect"; }));
+
+    // Rings + big numbers
+    document.getElementById("totalHoursBig").textContent = fmtDecimalHours(totalMin);
+    document.getElementById("totalHM").textContent = fmtHM(totalMin) + " logged";
+    document.getElementById("directHoursBig").textContent = fmtDecimalHours(directMin);
+    document.getElementById("directHM").textContent = fmtHM(directMin);
+    setRing(document.getElementById("ringTotal"), totalMin / GOAL_TOTAL_MIN);
+    setRing(document.getElementById("ringDirect"), directMin / GOAL_DIRECT_MIN);
+    document.getElementById("totalBadge").classList.toggle("show", totalMin >= GOAL_TOTAL_MIN);
+    document.getElementById("directBadge").classList.toggle("show", directMin >= GOAL_DIRECT_MIN);
+
+    // Stats
+    document.getElementById("statRemaining").textContent = fmtDecimalHours(Math.max(0, GOAL_TOTAL_MIN - totalMin));
+    document.getElementById("statDirectRemaining").textContent = fmtDecimalHours(Math.max(0, GOAL_DIRECT_MIN - directMin));
+    document.getElementById("statSupervision").textContent = fmtDecimalHours(supervisionMin);
+    document.getElementById("statIndirect").textContent = fmtDecimalHours(indirectMin);
+
+    renderSemesters(entries, totalMin);
+    renderTable(entries);
+  }
+
+  function renderSemesters(entries, totalMin) {
+    var fallDays = daysUntil(FALL_END);
+    var springDays = daysUntil(SPRING_END);
+    document.getElementById("fallDays").innerHTML = fallDays > 0
+      ? fallDays + " <span>days until it ends</span>"
+      : (fallDays === 0 ? "Ends <span>today</span>" : "Semester <span>complete</span>");
+    document.getElementById("springDays").innerHTML = springDays > 0
+      ? springDays + " <span>days until it ends</span>"
+      : (springDays === 0 ? "Ends <span>today</span>" : "Semester <span>complete</span>");
+
+    var windowDatesEl = document.getElementById("windowDates");
+    var windowDaysEl = document.getElementById("windowDays");
+    if (entries.length === 0) {
+      windowDatesEl.textContent = "Starts with your first logged entry";
+      windowDaysEl.innerHTML = "";
+      return;
+    }
+    var firstDate = entries.reduce(function (min, e) { return e.date < min ? e.date : min; }, entries[0].date);
+    var start = parseLocalDate(firstDate);
+    var end = new Date(start.getFullYear() + 1, start.getMonth(), start.getDate());
+    windowDatesEl.textContent = fmtDate(firstDate) + " – " +
+      end.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+    var left = daysUntil(end);
+    if (totalMin >= GOAL_TOTAL_MIN) {
+      windowDaysEl.innerHTML = "600 <span>hours complete</span>";
+    } else if (left > 0) {
+      var weeksLeft = left / 7;
+      var pace = fmtDecimalHours(Math.ceil((GOAL_TOTAL_MIN - totalMin) / weeksLeft));
+      windowDaysEl.innerHTML = left + " <span>days left · about " + pace + " h/week to finish</span>";
+    } else {
+      windowDaysEl.innerHTML = "Window <span>has ended</span>";
+    }
+  }
+
+  function renderTable(entries) {
+    var body = document.getElementById("tableBody");
+    var emptyState = document.getElementById("emptyState");
+    var subtotal = document.getElementById("subtotal");
+
+    var visible = currentFilter === "all"
+      ? entries.slice()
+      : entries.filter(function (e) { return e.category === currentFilter; });
+
+    visible.sort(function (a, b) {
+      var ka = a.date + " " + a.timeIn;
+      var kb = b.date + " " + b.timeIn;
+      return sortDesc ? (ka < kb ? 1 : ka > kb ? -1 : 0) : (ka < kb ? -1 : ka > kb ? 1 : 0);
+    });
+
+    var noun = visible.length === 1 ? "entry" : "entries";
+    var filterName = currentFilter === "all" ? noun : CATEGORY_LABELS[currentFilter] + " " + noun;
+    var subMin = sumMinutes(visible);
+    var hoursWord = fmtDecimalHours(subMin) === "1" ? "hour" : "hours";
+    subtotal.innerHTML = visible.length + " " + filterName + " · <strong>" + fmtHM(subMin) +
+      "</strong> (" + fmtDecimalHours(subMin) + " " + hoursWord + ")";
+
+    if (visible.length === 0) {
+      body.innerHTML = "";
+      emptyState.style.display = "block";
+      emptyState.textContent = entries.length === 0
+        ? "No hours logged yet — your first entry starts the clock."
+        : "No " + CATEGORY_LABELS[currentFilter] + " entries yet.";
+      return;
+    }
+    emptyState.style.display = "none";
+
+    var html = "";
+    for (var i = 0; i < visible.length; i++) {
+      var e = visible[i];
+      html += "<tr>" +
+        "<td class=\"num\">" + fmtDate(e.date) + "</td>" +
+        "<td class=\"num\">" + fmtTime12(e.timeIn) + "</td>" +
+        "<td class=\"num\">" + fmtTime12(e.timeOut) + "</td>" +
+        "<td class=\"num\">" + fmtHM(entryMinutes(e)) + "</td>" +
+        "<td><span class=\"type-pill type-" + e.category + "\">" + CATEGORY_LABELS[e.category] + "</span></td>" +
+        "<td class=\"note-cell\">" + escapeHtml(e.note || "") + "</td>" +
+        "<td><button type=\"button\" class=\"del-btn\" data-id=\"" + e.id + "\" aria-label=\"Delete entry from " + fmtDate(e.date) + "\">Delete</button></td>" +
+        "</tr>";
+    }
+    body.innerHTML = html;
+  }
+
+  // ---------- Form ----------
+  function showFormMsg(text, isError) {
+    var msg = document.getElementById("formMsg");
+    msg.textContent = text;
+    msg.className = "form-msg " + (isError ? "error" : "success");
+    if (msgTimer) clearTimeout(msgTimer);
+    if (!isError) {
+      msgTimer = setTimeout(function () { msg.className = "form-msg"; }, 3000);
+    }
+  }
+
+  function clearFormMsg() {
+    document.getElementById("formMsg").className = "form-msg";
+  }
+
+  function hideOverlapWarning() {
+    document.getElementById("overlapWarning").classList.remove("show");
+    pendingEntry = null;
+  }
+
+  function findOverlap(candidate) {
+    var cIn = toMinutes(candidate.timeIn);
+    var cOut = toMinutes(candidate.timeOut);
+    for (var i = 0; i < state.entries.length; i++) {
+      var e = state.entries[i];
+      if (e.date !== candidate.date) continue;
+      if (cIn < toMinutes(e.timeOut) && toMinutes(e.timeIn) < cOut) return e;
+    }
+    return null;
+  }
+
+  function commitEntry(entry) {
+    state.entries.push(entry);
+    saveState();
+    render();
+    hideOverlapWarning();
+    showFormMsg("Hours logged — " + fmtHM(entryMinutes(entry)) + " of " + CATEGORY_LABELS[entry.category].toLowerCase() + " time.", false);
+    document.getElementById("timeIn").value = "";
+    document.getElementById("timeOut").value = "";
+    document.getElementById("note").value = "";
+  }
+
+  document.getElementById("logForm").addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    hideOverlapWarning();
+    clearFormMsg();
+
+    var date = document.getElementById("entryDate").value;
+    var timeIn = document.getElementById("timeIn").value;
+    var timeOut = document.getElementById("timeOut").value;
+    var category = document.getElementById("category").value;
+    var note = document.getElementById("note").value.trim();
+
+    if (!date) return showFormMsg("Please pick a date.", true);
+    if (!timeIn) return showFormMsg("Please enter the time you checked in.", true);
+    if (!timeOut) return showFormMsg("Please enter the time you checked out.", true);
+    if (toMinutes(timeOut) <= toMinutes(timeIn)) {
+      return showFormMsg("Time out must be after time in. For an overnight shift, log it as two entries (one per day).", true);
+    }
+
+    var entry = { id: makeId(), date: date, timeIn: timeIn, timeOut: timeOut, category: category, note: note };
+    var clash = findOverlap(entry);
+    if (clash) {
+      pendingEntry = entry;
+      document.getElementById("overlapText").textContent =
+        "This overlaps an entry already logged on " + fmtDate(clash.date) + " (" +
+        fmtTime12(clash.timeIn) + " – " + fmtTime12(clash.timeOut) + ", " +
+        CATEGORY_LABELS[clash.category] + "). Log it anyway?";
+      document.getElementById("overlapWarning").classList.add("show");
+      return;
+    }
+    commitEntry(entry);
+  });
+
+  document.getElementById("overlapConfirm").addEventListener("click", function () {
+    if (pendingEntry) commitEntry(pendingEntry);
+  });
+  document.getElementById("overlapCancel").addEventListener("click", hideOverlapWarning);
+
+  // ---------- Table interactions ----------
+  document.getElementById("tableBody").addEventListener("click", function (ev) {
+    var btn = ev.target.closest(".del-btn");
+    if (!btn) return;
+    if (btn.dataset.armed) {
+      state.entries = state.entries.filter(function (e) { return e.id !== btn.dataset.id; });
+      saveState();
+      render();
+      return;
+    }
+    btn.dataset.armed = "1";
+    btn.classList.add("armed");
+    btn.textContent = "Sure?";
+    setTimeout(function () {
+      if (document.body.contains(btn)) {
+        delete btn.dataset.armed;
+        btn.classList.remove("armed");
+        btn.textContent = "Delete";
+      }
+    }, 3000);
+  });
+
+  var chips = document.querySelectorAll(".chip");
+  chips.forEach(function (chip) {
+    chip.addEventListener("click", function () {
+      currentFilter = chip.dataset.filter;
+      chips.forEach(function (c) { c.setAttribute("aria-pressed", c === chip ? "true" : "false"); });
+      renderTable(state.entries);
+    });
+  });
+
+  document.getElementById("sortBtn").addEventListener("click", function () {
+    sortDesc = !sortDesc;
+    this.textContent = sortDesc ? "Newest first ↓" : "Oldest first ↑";
+    renderTable(state.entries);
+  });
+
+  // ---------- Site name ----------
+  var siteInput = document.getElementById("siteName");
+  siteInput.value = state.siteName;
+  siteInput.addEventListener("input", function () {
+    state.siteName = siteInput.value;
+    saveState();
+  });
+
+  // ---------- Backup ----------
+  function showBackupMsg(text, isError) {
+    var el = document.getElementById("backupMsg");
+    el.textContent = text;
+    el.className = "backup-msg show" + (isError ? " error" : "");
+    if (backupMsgTimer) clearTimeout(backupMsgTimer);
+    backupMsgTimer = setTimeout(function () { el.className = "backup-msg"; }, 5000);
+  }
+
+  document.getElementById("exportBtn").addEventListener("click", function () {
+    var payload = {
+      app: "practicum-tracker",
+      version: 1,
+      exported: new Date().toISOString(),
+      siteName: state.siteName,
+      entries: state.entries
+    };
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "practicum-hours-backup-" + todayISO() + ".json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+    showBackupMsg("Backup downloaded (" + state.entries.length + " entries).", false);
+  });
+
+  document.getElementById("importBtn").addEventListener("click", function () {
+    document.getElementById("importFile").click();
+  });
+
+  document.getElementById("importFile").addEventListener("change", function () {
+    var file = this.files[0];
+    this.value = "";
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      try {
+        var data = JSON.parse(reader.result);
+        if (!data || typeof data !== "object" || !Array.isArray(data.entries)) {
+          throw new Error("shape");
+        }
+        var valid = data.entries.filter(isValidEntry);
+        if (valid.length === 0 && data.entries.length > 0) throw new Error("shape");
+        pendingImport = {
+          siteName: typeof data.siteName === "string" ? data.siteName : state.siteName,
+          entries: valid.map(function (e) {
+            return { id: e.id || makeId(), date: e.date, timeIn: e.timeIn, timeOut: e.timeOut, category: e.category, note: typeof e.note === "string" ? e.note : "" };
+          })
+        };
+        var skipped = data.entries.length - valid.length;
+        document.getElementById("importText").textContent =
+          "This backup has " + valid.length + " entries (" + fmtHM(sumMinutes(pendingImport.entries)) + ")" +
+          (skipped > 0 ? ", " + skipped + (skipped === 1 ? " invalid entry" : " invalid entries") + " will be skipped" : "") +
+          ". Restoring will replace your current " + state.entries.length + " entries. Continue?";
+        document.getElementById("importConfirm").classList.add("show");
+      } catch (e) {
+        showBackupMsg("That file doesn't look like a practicum backup. Nothing was changed.", true);
+      }
+    };
+    reader.onerror = function () {
+      showBackupMsg("Couldn't read that file. Nothing was changed.", true);
+    };
+    reader.readAsText(file);
+  });
+
+  document.getElementById("importAccept").addEventListener("click", function () {
+    if (!pendingImport) return;
+    state = pendingImport;
+    pendingImport = null;
+    document.getElementById("importConfirm").classList.remove("show");
+    saveState();
+    siteInput.value = state.siteName;
+    render();
+    showBackupMsg("Backup restored — " + state.entries.length + " entries loaded.", false);
+  });
+
+  document.getElementById("importCancel").addEventListener("click", function () {
+    pendingImport = null;
+    document.getElementById("importConfirm").classList.remove("show");
+  });
+
+  // ---------- Init ----------
+  document.getElementById("entryDate").value = todayISO();
+  render();
+})();
+</script>
+</body>
+</html>
