@@ -27,6 +27,18 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
   body {
     background: var(--bg);
     color: var(--ink);
@@ -36,7 +48,7 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Paper grain — mandatory per design system */
+  /* Paper grain, mandatory per design system */
   .grain {
     pointer-events: none;
     position: fixed;
@@ -57,20 +69,38 @@
   h1 i, h2 i { font-style: italic; }
 
   /* ---------- Header ---------- */
-  header { text-align: center; padding: 24px 0 40px; }
+  header { text-align: center; padding: 40px 0 48px; }
   .eyebrow {
     text-transform: uppercase;
     letter-spacing: 0.22em;
     font-size: 0.78rem;
     font-weight: 600;
     color: var(--ink-soft);
-    margin-bottom: 14px;
+    margin-bottom: 18px;
   }
-  header h1 { font-size: clamp(2.6rem, 7vw, 4.5rem); }
+  header h1 { font-size: clamp(2.6rem, 7vw, 4.5rem); line-height: 1.25; margin: 6px 0; }
+  #userName {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-style: italic;
+    font-size: clamp(2.6rem, 7vw, 4.5rem);
+    line-height: 1.25;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    text-align: center;
+    width: 100%;
+    max-width: 100%;
+    margin: 6px 0;
+    padding: 0;
+    transition: color 0.3s ease-out;
+  }
+  #userName:focus { outline: none; }
+  #userName::placeholder { color: #A9B2A9; }
   .subtitle { color: var(--ink-soft); margin-top: 12px; font-size: 1.05rem; }
   .site-row {
     margin: 28px auto 0;
-    max-width: 460px;
+    max-width: 560px;
     display: flex;
     align-items: baseline;
     gap: 12px;
@@ -95,7 +125,9 @@
     border-bottom: 1px solid var(--stone);
     padding: 4px 2px 6px;
     text-align: center;
-    min-width: 260px;
+    flex: 1 1 300px;
+    min-width: 220px;
+    max-width: 400px;
     transition: border-color 0.3s ease-out;
   }
   #siteName:focus { outline: none; border-bottom-color: var(--sage); }
@@ -229,14 +261,6 @@
     margin-top: 12px;
   }
   .semester-card .days span { font-family: var(--sans); font-weight: 400; font-size: 0.95rem; color: var(--ink-soft); }
-  .semester-note {
-    margin-top: 16px;
-    text-align: center;
-    color: var(--ink-soft);
-    font-size: 0.92rem;
-    font-style: italic;
-  }
-
   /* ---------- Form ---------- */
   .form-card h2 { font-size: 1.9rem; margin-bottom: 22px; }
   .form-grid {
@@ -425,6 +449,45 @@
   .backup-msg.show { display: block; }
   .backup-msg.error { color: #A0522D; }
 
+  .backup-modal {
+    display: none;
+    margin: 20px auto 0;
+    max-width: 640px;
+    background: var(--white);
+    border: 1px solid var(--stone);
+    border-radius: 20px;
+    padding: 26px 28px;
+    box-shadow: var(--shadow-md);
+    text-align: left;
+  }
+  .backup-modal.show { display: block; }
+  .backup-modal h3 { font-size: 1.3rem; text-align: center; margin-bottom: 4px; }
+  .backup-modal .backup-sub { text-align: center; color: var(--ink-soft); font-size: 0.88rem; margin-bottom: 20px; }
+  .backup-chart { display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; }
+  .backup-chart-row { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; }
+  .backup-chart-label { width: 96px; flex-shrink: 0; color: var(--ink-soft); font-weight: 600; }
+  .backup-chart-track { flex: 1; height: 10px; background: var(--clay-soft); border-radius: 6px; overflow: hidden; }
+  .backup-chart-fill { height: 100%; border-radius: 6px; background: var(--sage); }
+  .backup-chart-row.cat-supervision .backup-chart-fill { background: var(--terracotta); }
+  .backup-chart-row.cat-indirect .backup-chart-fill { background: var(--clay); }
+  .backup-chart-value { width: 72px; flex-shrink: 0; text-align: right; font-weight: 600; }
+  .backup-code-block { margin-bottom: 16px; }
+  .backup-code-block label { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-soft); font-weight: 600; margin-bottom: 6px; }
+  .backup-code-block textarea {
+    width: 100%;
+    max-height: 180px;
+    resize: vertical;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--ink);
+    background: var(--clay-soft);
+    border: 1px solid var(--stone);
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .backup-modal .btns { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
+
   footer {
     margin-top: 56px;
     text-align: center;
@@ -471,7 +534,8 @@
 <div class="wrap">
   <header>
     <p class="eyebrow">2026–2027 · Practicum I &amp; II</p>
-    <h1>Delan <i>Padiz</i></h1>
+    <label for="userName" class="sr-only">Your name</label>
+    <input type="text" id="userName" placeholder="Your name" autocomplete="off">
     <p class="subtitle">MA Clinical &amp; Counseling Psychology · William Paterson University</p>
     <div class="site-row">
       <label for="siteName">Practicum site</label>
@@ -559,7 +623,6 @@
         <p class="days" id="windowDays"></p>
       </div>
     </div>
-    <p class="semester-note">Semester end dates are for reference only — your hours can continue past May 12. The program limit is completing the 600 hours within 12 months.</p>
   </section>
 
   <!-- Log form -->
@@ -632,7 +695,7 @@
         </thead>
         <tbody id="tableBody"></tbody>
       </table>
-      <p class="empty-state" id="emptyState">No hours logged yet — your first entry starts the clock.</p>
+      <p class="empty-state" id="emptyState">No hours logged yet, your first entry starts the clock.</p>
     </div>
   </section>
 
@@ -650,6 +713,21 @@
     </div>
   </div>
   <p class="backup-msg" id="backupMsg" role="status"></p>
+
+  <div class="backup-modal" id="backupModal">
+    <h3>Backup snapshot</h3>
+    <p class="backup-sub" id="backupModalSub"></p>
+    <div class="backup-chart" id="backupChart"></div>
+    <div class="backup-code-block">
+      <label for="backupJson">Backup JSON (copy this somewhere safe, Obsidian, iCloud, email)</label>
+      <textarea id="backupJson" readonly rows="6"></textarea>
+    </div>
+    <div class="btns">
+      <button type="button" class="btn btn-secondary btn-small" id="copyJsonBtn">Copy JSON</button>
+      <button type="button" class="btn btn-secondary btn-small" id="copyMarkdownBtn">Copy Markdown for Obsidian</button>
+      <button type="button" class="btn btn-primary btn-small" id="closeBackupModal">Close</button>
+    </div>
+  </div>
 
   <footer>
     <svg class="vine" viewBox="0 0 140 20" aria-hidden="true"><path d="M0 10 C 20 2, 35 18, 55 10 S 90 2, 110 10 S 130 16, 140 10"/></svg>
@@ -683,13 +761,14 @@
 
   // ---------- Persistence ----------
   function loadState() {
-    var fallback = { siteName: "", entries: [] };
+    var fallback = { userName: "", siteName: "", entries: [] };
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return fallback;
       var data = JSON.parse(raw);
       if (!data || typeof data !== "object" || !Array.isArray(data.entries)) return fallback;
       return {
+        userName: typeof data.userName === "string" ? data.userName : "",
         siteName: typeof data.siteName === "string" ? data.siteName : "",
         entries: data.entries.filter(isValidEntry)
       };
@@ -876,7 +955,7 @@
       body.innerHTML = "";
       emptyState.style.display = "block";
       emptyState.textContent = entries.length === 0
-        ? "No hours logged yet — your first entry starts the clock."
+        ? "No hours logged yet, your first entry starts the clock."
         : "No " + CATEGORY_LABELS[currentFilter] + " entries yet.";
       return;
     }
@@ -934,7 +1013,7 @@
     saveState();
     render();
     hideOverlapWarning();
-    showFormMsg("Hours logged — " + fmtHM(entryMinutes(entry)) + " of " + CATEGORY_LABELS[entry.category].toLowerCase() + " time.", false);
+    showFormMsg("Hours logged, " + fmtHM(entryMinutes(entry)) + " of " + CATEGORY_LABELS[entry.category].toLowerCase() + " time.", false);
     document.getElementById("timeIn").value = "";
     document.getElementById("timeOut").value = "";
     document.getElementById("note").value = "";
@@ -1014,6 +1093,14 @@
     renderTable(state.entries);
   });
 
+  // ---------- Name ----------
+  var nameInput = document.getElementById("userName");
+  nameInput.value = state.userName;
+  nameInput.addEventListener("input", function () {
+    state.userName = nameInput.value;
+    saveState();
+  });
+
   // ---------- Site name ----------
   var siteInput = document.getElementById("siteName");
   siteInput.value = state.siteName;
@@ -1031,14 +1118,82 @@
     backupMsgTimer = setTimeout(function () { el.className = "backup-msg"; }, 5000);
   }
 
-  document.getElementById("exportBtn").addEventListener("click", function () {
-    var payload = {
+  function categoryMinutes(category) {
+    return sumMinutes(state.entries.filter(function (e) { return e.category === category; }));
+  }
+
+  function renderBackupChart() {
+    var chart = document.getElementById("backupChart");
+    var total = sumMinutes(state.entries) || 1;
+    var cats = ["direct", "supervision", "indirect"];
+    chart.innerHTML = cats.map(function (cat) {
+      var min = categoryMinutes(cat);
+      var pct = Math.round((min / total) * 100);
+      return (
+        '<div class="backup-chart-row cat-' + cat + '">' +
+        '<span class="backup-chart-label">' + CATEGORY_LABELS[cat] + '</span>' +
+        '<span class="backup-chart-track"><span class="backup-chart-fill" style="width:' + pct + '%"></span></span>' +
+        '<span class="backup-chart-value">' + fmtHM(min) + '</span>' +
+        '</div>'
+      );
+    }).join("");
+  }
+
+  function buildBackupPayload() {
+    return {
       app: "practicum-tracker",
       version: 1,
       exported: new Date().toISOString(),
+      userName: state.userName,
       siteName: state.siteName,
       entries: state.entries
     };
+  }
+
+  function buildMarkdownTable() {
+    var sorted = state.entries.slice().sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
+    var lines = [];
+    lines.push("### Practicum hours log");
+    lines.push("");
+    if (state.userName) lines.push("**Name:** " + state.userName);
+    if (state.siteName) lines.push("**Site:** " + state.siteName);
+    lines.push("**Total:** " + fmtHM(sumMinutes(state.entries)) + " (" + fmtHM(categoryMinutes("direct")) + " direct, " + fmtHM(categoryMinutes("supervision")) + " supervision, " + fmtHM(categoryMinutes("indirect")) + " indirect)");
+    lines.push("**Updated:** " + fmtDate(todayISO()));
+    lines.push("");
+    lines.push("| Date | In | Out | Duration | Category | Note |");
+    lines.push("|---|---|---|---|---|---|");
+    sorted.forEach(function (e) {
+      lines.push(
+        "| " + fmtDate(e.date) + " | " + fmtTime12(e.timeIn) + " | " + fmtTime12(e.timeOut) + " | " +
+        fmtHM(entryMinutes(e)) + " | " + CATEGORY_LABELS[e.category] + " | " + (e.note || "").replace(/\|/g, "/") + " |"
+      );
+    });
+    return lines.join("\n");
+  }
+
+  function copyToClipboard(text, label) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () {
+        showBackupMsg(label + " copied.", false);
+      }, function () {
+        showBackupMsg("Could not copy " + label.toLowerCase() + ". Select the text manually.", true);
+      });
+    } else {
+      showBackupMsg("Clipboard isn't available here. Select the text manually.", true);
+    }
+  }
+
+  function openBackupModal() {
+    var payload = buildBackupPayload();
+    document.getElementById("backupModalSub").textContent =
+      state.entries.length + (state.entries.length === 1 ? " entry, " : " entries, ") + fmtHM(sumMinutes(state.entries)) + " total, exported " + fmtDate(todayISO()) + ".";
+    renderBackupChart();
+    document.getElementById("backupJson").value = JSON.stringify(payload, null, 2);
+    document.getElementById("backupModal").classList.add("show");
+  }
+
+  document.getElementById("exportBtn").addEventListener("click", function () {
+    var payload = buildBackupPayload();
     var blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
     var a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -1048,6 +1203,19 @@
     document.body.removeChild(a);
     URL.revokeObjectURL(a.href);
     showBackupMsg("Backup downloaded (" + state.entries.length + " entries).", false);
+    openBackupModal();
+  });
+
+  document.getElementById("copyJsonBtn").addEventListener("click", function () {
+    copyToClipboard(document.getElementById("backupJson").value, "JSON");
+  });
+
+  document.getElementById("copyMarkdownBtn").addEventListener("click", function () {
+    copyToClipboard(buildMarkdownTable(), "Markdown table");
+  });
+
+  document.getElementById("closeBackupModal").addEventListener("click", function () {
+    document.getElementById("backupModal").classList.remove("show");
   });
 
   document.getElementById("importBtn").addEventListener("click", function () {
@@ -1068,6 +1236,7 @@
         var valid = data.entries.filter(isValidEntry);
         if (valid.length === 0 && data.entries.length > 0) throw new Error("shape");
         pendingImport = {
+          userName: typeof data.userName === "string" ? data.userName : state.userName,
           siteName: typeof data.siteName === "string" ? data.siteName : state.siteName,
           entries: valid.map(function (e) {
             return { id: e.id || makeId(), date: e.date, timeIn: e.timeIn, timeOut: e.timeOut, category: e.category, note: typeof e.note === "string" ? e.note : "" };
@@ -1095,9 +1264,10 @@
     pendingImport = null;
     document.getElementById("importConfirm").classList.remove("show");
     saveState();
+    nameInput.value = state.userName;
     siteInput.value = state.siteName;
     render();
-    showBackupMsg("Backup restored — " + state.entries.length + " entries loaded.", false);
+    showBackupMsg("Backup restored, " + state.entries.length + " entries loaded.", false);
   });
 
   document.getElementById("importCancel").addEventListener("click", function () {
