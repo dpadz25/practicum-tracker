@@ -293,7 +293,7 @@
     border-color: var(--sage);
     box-shadow: 0 0 0 2px rgba(140, 154, 132, 0.25);
   }
-  .field.note-field { grid-column: 1 / span 3; }
+  .field.note-field { grid-column: span 2; }
   .form-actions { display: flex; align-items: center; gap: 16px; }
 
   .btn {
@@ -366,7 +366,7 @@
   .subtotal strong { color: var(--ink); }
 
   .table-scroll { overflow-x: auto; border-radius: 16px; }
-  table { width: 100%; border-collapse: collapse; min-width: 640px; }
+  table { width: 100%; border-collapse: collapse; min-width: 720px; }
   th {
     text-align: left;
     text-transform: uppercase;
@@ -394,8 +394,8 @@
     white-space: nowrap;
   }
   .type-direct { background: rgba(140, 154, 132, 0.22); color: #4C5E50; }
-  .type-supervision { background: rgba(194, 123, 102, 0.18); color: #94553F; }
-  .type-indirect { background: var(--stone); color: var(--ink-soft); }
+  .type-indSup, .type-grpSup { background: rgba(194, 123, 102, 0.18); color: #94553F; }
+  .type-indirect, .type-training, .type-research, .type-other { background: var(--stone); color: var(--ink-soft); }
 
   .del-btn {
     font-family: var(--sans);
@@ -463,14 +463,39 @@
   .backup-modal.show { display: block; }
   .backup-modal h3 { font-size: 1.3rem; text-align: center; margin-bottom: 4px; }
   .backup-modal .backup-sub { text-align: center; color: var(--ink-soft); font-size: 0.88rem; margin-bottom: 20px; }
-  .backup-chart { display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; }
-  .backup-chart-row { display: flex; align-items: center; gap: 10px; font-size: 0.85rem; }
-  .backup-chart-label { width: 96px; flex-shrink: 0; color: var(--ink-soft); font-weight: 600; }
-  .backup-chart-track { flex: 1; height: 10px; background: var(--clay-soft); border-radius: 6px; overflow: hidden; }
-  .backup-chart-fill { height: 100%; border-radius: 6px; background: var(--sage); }
-  .backup-chart-row.cat-supervision .backup-chart-fill { background: var(--terracotta); }
-  .backup-chart-row.cat-indirect .backup-chart-fill { background: var(--clay); }
-  .backup-chart-value { width: 72px; flex-shrink: 0; text-align: right; font-weight: 600; }
+  .backup-chart { margin-bottom: 22px; }
+
+  /* Shared category bar chart (log "Totals by category" + backup modal) */
+  .cat-bar-chart { display: flex; flex-direction: column; gap: 10px; }
+  .cat-bar-row { display: flex; align-items: center; gap: 12px; font-size: 0.85rem; }
+  .cat-bar-label { width: 140px; flex-shrink: 0; color: var(--ink-soft); font-weight: 600; }
+  .cat-bar-track { flex: 1; height: 10px; background: var(--clay-soft); border-radius: 6px; overflow: hidden; }
+  .cat-bar-fill { display: block; height: 100%; border-radius: 6px; background: var(--sage); transition: width 0.6s ease-out; }
+  .cat-bar-row.cat-indSup .cat-bar-fill,
+  .cat-bar-row.cat-grpSup .cat-bar-fill { background: var(--terracotta); }
+  .cat-bar-row.cat-indirect .cat-bar-fill,
+  .cat-bar-row.cat-training .cat-bar-fill,
+  .cat-bar-row.cat-research .cat-bar-fill,
+  .cat-bar-row.cat-other .cat-bar-fill { background: var(--clay); }
+  .cat-bar-value { width: 66px; flex-shrink: 0; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .cat-bar-dec { width: 62px; flex-shrink: 0; text-align: right; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+  .cat-bar-row.cat-bar-total {
+    border-top: 1px solid var(--stone);
+    margin-top: 4px;
+    padding-top: 10px;
+    font-family: var(--serif);
+    font-size: 0.98rem;
+  }
+  .cat-bar-row.cat-bar-total .cat-bar-label { color: var(--ink); }
+
+  .cat-totals { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--stone); }
+  .cat-totals h3 { font-size: 1.3rem; }
+  .cat-totals-sub { color: var(--ink-soft); font-size: 0.88rem; margin: 4px 0 18px; }
+
+  @media (max-width: 520px) {
+    .cat-bar-label { width: 104px; font-size: 0.8rem; }
+    .cat-bar-dec { display: none; }
+  }
   .backup-code-block { margin-bottom: 16px; }
   .backup-code-block label { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--ink-soft); font-weight: 600; margin-bottom: 6px; }
   .backup-code-block textarea {
@@ -596,9 +621,9 @@
           <span class="hint">hours logged</span>
         </div>
         <div class="stat">
-          <span class="label">Indirect</span>
+          <span class="label">Non-client</span>
           <span class="value" id="statIndirect">0</span>
-          <span class="hint">hours logged</span>
+          <span class="hint">indirect, training, research, other</span>
         </div>
       </div>
     </div>
@@ -644,14 +669,14 @@
         </div>
         <div class="field">
           <label for="category">Type of time</label>
-          <select id="category" required>
-            <option value="direct">Direct client contact</option>
-            <option value="supervision">Supervision</option>
-            <option value="indirect">Indirect / other</option>
-          </select>
+          <select id="category" required></select>
+        </div>
+        <div class="field">
+          <label for="clientInitials">Client initials <span style="text-transform:none;letter-spacing:0;">(optional)</span></label>
+          <input type="text" id="clientInitials" maxlength="16" placeholder="e.g. A.B." autocomplete="off">
         </div>
         <div class="field note-field">
-          <label for="note">Note <span style="text-transform:none;letter-spacing:0;">(optional)</span></label>
+          <label for="note">Activity / note <span style="text-transform:none;letter-spacing:0;">(optional)</span></label>
           <input type="text" id="note" maxlength="200" placeholder="e.g. Intake session, group observation" autocomplete="off">
         </div>
         <div class="form-actions">
@@ -671,12 +696,7 @@
   <section class="card">
     <div class="table-head">
       <h2>Hours <i>log</i></h2>
-      <div class="chips" role="group" aria-label="Filter entries by type">
-        <button type="button" class="chip" data-filter="all" aria-pressed="true">All</button>
-        <button type="button" class="chip" data-filter="direct" aria-pressed="false">Direct client</button>
-        <button type="button" class="chip" data-filter="supervision" aria-pressed="false">Supervision</button>
-        <button type="button" class="chip" data-filter="indirect" aria-pressed="false">Indirect</button>
-      </div>
+      <div class="chips" id="filterChips" role="group" aria-label="Filter entries by type"></div>
       <button type="button" class="btn btn-secondary btn-small" id="sortBtn" aria-label="Toggle sort order">Newest first ↓</button>
     </div>
     <p class="subtotal" id="subtotal" aria-live="polite"></p>
@@ -689,6 +709,7 @@
             <th scope="col">Time out</th>
             <th scope="col">Duration</th>
             <th scope="col">Type</th>
+            <th scope="col">Client</th>
             <th scope="col">Note</th>
             <th scope="col"><span class="sr-only">Actions</span></th>
           </tr>
@@ -696,6 +717,12 @@
         <tbody id="tableBody"></tbody>
       </table>
       <p class="empty-state" id="emptyState">No hours logged yet, your first entry starts the clock.</p>
+    </div>
+
+    <div class="cat-totals">
+      <h3>Totals by <i>category</i></h3>
+      <p class="cat-totals-sub">Matches the seven columns on the WPU Record of Supervised Hours form.</p>
+      <div class="cat-bar-chart" id="categoryTotals"></div>
     </div>
   </section>
 
@@ -717,7 +744,7 @@
   <div class="backup-modal" id="backupModal">
     <h3>Backup snapshot</h3>
     <p class="backup-sub" id="backupModalSub"></p>
-    <div class="backup-chart" id="backupChart"></div>
+    <div class="backup-chart cat-bar-chart" id="backupChart"></div>
     <div class="backup-code-block">
       <label for="backupJson">Backup JSON (copy this somewhere safe, Obsidian, iCloud, email)</label>
       <textarea id="backupJson" readonly rows="6"></textarea>
@@ -740,14 +767,33 @@
 (function () {
   "use strict";
 
-  var STORAGE_KEY = "practicum-tracker-v1";
+  var STORAGE_KEY = "practicum-tracker-v2";
+  var LEGACY_STORAGE_KEY = "practicum-tracker-v1";
   var GOAL_TOTAL_MIN = 600 * 60;
   var GOAL_DIRECT_MIN = 240 * 60;
-  var CATEGORY_LABELS = {
-    direct: "Direct client",
-    supervision: "Supervision",
-    indirect: "Indirect"
-  };
+
+  // The 7 categories on the WPU "Record of Supervised Hours" form, in form order.
+  var CATEGORIES = [
+    { key: "direct",   label: "Direct client",         short: "Direct" },
+    { key: "indSup",   label: "Individual supervision", short: "Ind. sup" },
+    { key: "grpSup",   label: "Group supervision",      short: "Grp sup" },
+    { key: "indirect", label: "Admin / indirect",       short: "Indirect" },
+    { key: "training", label: "Training / education",   short: "Training" },
+    { key: "research", label: "Research",               short: "Research" },
+    { key: "other",    label: "Other",                  short: "Other" }
+  ];
+  var CATEGORY_LABELS = {};
+  CATEGORIES.forEach(function (c) { CATEGORY_LABELS[c.key] = c.label; });
+
+  // Old 3-category keys map onto the new set. supervision -> grpSup because
+  // Delan's only pre-migration supervision entry was "Group Supervision with
+  // Datchi"; any individual supervision gets re-filed via delete + re-add.
+  var LEGACY_CATEGORY_MAP = { direct: "direct", supervision: "grpSup", indirect: "indirect" };
+
+  function migrateCategory(key) {
+    if (CATEGORY_LABELS.hasOwnProperty(key)) return key;
+    return LEGACY_CATEGORY_MAP[key] || null;
+  }
   var FALL_END = new Date(2026, 11, 12);   // Dec 12, 2026
   var SPRING_END = new Date(2027, 4, 12);  // May 12, 2027
 
@@ -759,22 +805,67 @@
   var msgTimer = null;
   var backupMsgTimer = null;
 
+  buildControls();
+
+  // Build the category <select> options and the filter chips from CATEGORIES so
+  // the whole app has one source of truth for the category set.
+  function buildControls() {
+    var select = document.getElementById("category");
+    select.innerHTML = CATEGORIES.map(function (c) {
+      return '<option value="' + c.key + '">' + c.label + '</option>';
+    }).join("");
+
+    var chipHost = document.getElementById("filterChips");
+    var chips = ['<button type="button" class="chip" data-filter="all" aria-pressed="true">All</button>'];
+    CATEGORIES.forEach(function (c) {
+      chips.push('<button type="button" class="chip" data-filter="' + c.key + '" aria-pressed="false">' + c.short + '</button>');
+    });
+    chipHost.innerHTML = chips.join("");
+  }
+
   // ---------- Persistence ----------
+  function parseStoredState(raw) {
+    if (!raw) return null;
+    var data = JSON.parse(raw);
+    if (!data || typeof data !== "object" || !Array.isArray(data.entries)) return null;
+    return {
+      userName: typeof data.userName === "string" ? data.userName : "",
+      siteName: typeof data.siteName === "string" ? data.siteName : "",
+      entries: data.entries.map(normalizeEntry).filter(isValidEntry)
+    };
+  }
+
   function loadState() {
     var fallback = { userName: "", siteName: "", entries: [] };
     try {
-      var raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return fallback;
-      var data = JSON.parse(raw);
-      if (!data || typeof data !== "object" || !Array.isArray(data.entries)) return fallback;
-      return {
-        userName: typeof data.userName === "string" ? data.userName : "",
-        siteName: typeof data.siteName === "string" ? data.siteName : "",
-        entries: data.entries.filter(isValidEntry)
-      };
+      var current = parseStoredState(localStorage.getItem(STORAGE_KEY));
+      if (current) return current;
+      // First run on v2: pull the old v1 store forward, leaving v1 as a backup.
+      var legacy = parseStoredState(localStorage.getItem(LEGACY_STORAGE_KEY));
+      if (legacy) {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(legacy)); } catch (e) {}
+        return legacy;
+      }
+      return fallback;
     } catch (e) {
       return fallback;
     }
+  }
+
+  // Coerce any stored/imported entry into the current shape (migrates category,
+  // fills clientInitials). Returns the entry with category possibly null so
+  // isValidEntry can reject it.
+  function normalizeEntry(e) {
+    if (!e || typeof e !== "object") return e;
+    return {
+      id: e.id || makeId(),
+      date: e.date,
+      timeIn: e.timeIn,
+      timeOut: e.timeOut,
+      category: migrateCategory(e.category),
+      clientInitials: typeof e.clientInitials === "string" ? e.clientInitials : "",
+      note: typeof e.note === "string" ? e.note : ""
+    };
   }
 
   function saveState() {
@@ -792,6 +883,10 @@
       /^\d{2}:\d{2}$/.test(e.timeOut) &&
       CATEGORY_LABELS.hasOwnProperty(e.category) &&
       toMinutes(e.timeOut) > toMinutes(e.timeIn);
+  }
+
+  function catMinutes(key) {
+    return sumMinutes(state.entries.filter(function (e) { return e.category === key; }));
   }
 
   // ---------- Time math (integer minutes only) ----------
@@ -871,9 +966,9 @@
   function render() {
     var entries = state.entries;
     var totalMin = sumMinutes(entries);
-    var directMin = sumMinutes(entries.filter(function (e) { return e.category === "direct"; }));
-    var supervisionMin = sumMinutes(entries.filter(function (e) { return e.category === "supervision"; }));
-    var indirectMin = sumMinutes(entries.filter(function (e) { return e.category === "indirect"; }));
+    var directMin = catMinutes("direct");
+    var supervisionMin = catMinutes("indSup") + catMinutes("grpSup");
+    var nonClientMin = totalMin - directMin - supervisionMin;
 
     // Rings + big numbers
     document.getElementById("totalHoursBig").textContent = fmtDecimalHours(totalMin);
@@ -889,10 +984,37 @@
     document.getElementById("statRemaining").textContent = fmtDecimalHours(Math.max(0, GOAL_TOTAL_MIN - totalMin));
     document.getElementById("statDirectRemaining").textContent = fmtDecimalHours(Math.max(0, GOAL_DIRECT_MIN - directMin));
     document.getElementById("statSupervision").textContent = fmtDecimalHours(supervisionMin);
-    document.getElementById("statIndirect").textContent = fmtDecimalHours(indirectMin);
+    document.getElementById("statIndirect").textContent = fmtDecimalHours(nonClientMin);
 
     renderSemesters(entries, totalMin);
+    renderCategoryTotals(totalMin);
     renderTable(entries);
+  }
+
+  function renderCategoryTotals(totalMin) {
+    var host = document.getElementById("categoryTotals");
+    var denom = totalMin || 1;
+    var rows = CATEGORIES.map(function (c) {
+      var min = catMinutes(c.key);
+      var pct = Math.round((min / denom) * 100);
+      return (
+        '<div class="cat-bar-row cat-' + c.key + '">' +
+        '<span class="cat-bar-label">' + c.label + '</span>' +
+        '<span class="cat-bar-track"><span class="cat-bar-fill" style="width:' + pct + '%"></span></span>' +
+        '<span class="cat-bar-value">' + fmtHM(min) + '</span>' +
+        '<span class="cat-bar-dec">' + fmtDecimalHours(min) + ' h</span>' +
+        '</div>'
+      );
+    });
+    rows.push(
+      '<div class="cat-bar-row cat-bar-total">' +
+      '<span class="cat-bar-label">Total</span>' +
+      '<span class="cat-bar-track"></span>' +
+      '<span class="cat-bar-value">' + fmtHM(totalMin) + '</span>' +
+      '<span class="cat-bar-dec">' + fmtDecimalHours(totalMin) + ' h</span>' +
+      '</div>'
+    );
+    host.innerHTML = rows.join("");
   }
 
   function renderSemesters(entries, totalMin) {
@@ -970,6 +1092,7 @@
         "<td class=\"num\">" + fmtTime12(e.timeOut) + "</td>" +
         "<td class=\"num\">" + fmtHM(entryMinutes(e)) + "</td>" +
         "<td><span class=\"type-pill type-" + e.category + "\">" + CATEGORY_LABELS[e.category] + "</span></td>" +
+        "<td class=\"num\">" + escapeHtml(e.clientInitials || "") + "</td>" +
         "<td class=\"note-cell\">" + escapeHtml(e.note || "") + "</td>" +
         "<td><button type=\"button\" class=\"del-btn\" data-id=\"" + e.id + "\" aria-label=\"Delete entry from " + fmtDate(e.date) + "\">Delete</button></td>" +
         "</tr>";
@@ -1016,6 +1139,7 @@
     showFormMsg("Hours logged, " + fmtHM(entryMinutes(entry)) + " of " + CATEGORY_LABELS[entry.category].toLowerCase() + " time.", false);
     document.getElementById("timeIn").value = "";
     document.getElementById("timeOut").value = "";
+    document.getElementById("clientInitials").value = "";
     document.getElementById("note").value = "";
   }
 
@@ -1028,6 +1152,7 @@
     var timeIn = document.getElementById("timeIn").value;
     var timeOut = document.getElementById("timeOut").value;
     var category = document.getElementById("category").value;
+    var clientInitials = document.getElementById("clientInitials").value.trim();
     var note = document.getElementById("note").value.trim();
 
     if (!date) return showFormMsg("Please pick a date.", true);
@@ -1037,7 +1162,7 @@
       return showFormMsg("Time out must be after time in. For an overnight shift, log it as two entries (one per day).", true);
     }
 
-    var entry = { id: makeId(), date: date, timeIn: timeIn, timeOut: timeOut, category: category, note: note };
+    var entry = { id: makeId(), date: date, timeIn: timeIn, timeOut: timeOut, category: category, clientInitials: clientInitials, note: note };
     var clash = findOverlap(entry);
     if (clash) {
       pendingEntry = entry;
@@ -1118,22 +1243,17 @@
     backupMsgTimer = setTimeout(function () { el.className = "backup-msg"; }, 5000);
   }
 
-  function categoryMinutes(category) {
-    return sumMinutes(state.entries.filter(function (e) { return e.category === category; }));
-  }
-
   function renderBackupChart() {
     var chart = document.getElementById("backupChart");
     var total = sumMinutes(state.entries) || 1;
-    var cats = ["direct", "supervision", "indirect"];
-    chart.innerHTML = cats.map(function (cat) {
-      var min = categoryMinutes(cat);
+    chart.innerHTML = CATEGORIES.map(function (c) {
+      var min = catMinutes(c.key);
       var pct = Math.round((min / total) * 100);
       return (
-        '<div class="backup-chart-row cat-' + cat + '">' +
-        '<span class="backup-chart-label">' + CATEGORY_LABELS[cat] + '</span>' +
-        '<span class="backup-chart-track"><span class="backup-chart-fill" style="width:' + pct + '%"></span></span>' +
-        '<span class="backup-chart-value">' + fmtHM(min) + '</span>' +
+        '<div class="cat-bar-row cat-' + c.key + '">' +
+        '<span class="cat-bar-label">' + c.label + '</span>' +
+        '<span class="cat-bar-track"><span class="cat-bar-fill" style="width:' + pct + '%"></span></span>' +
+        '<span class="cat-bar-value">' + fmtHM(min) + '</span>' +
         '</div>'
       );
     }).join("");
@@ -1142,7 +1262,7 @@
   function buildBackupPayload() {
     return {
       app: "practicum-tracker",
-      version: 1,
+      version: 2,
       exported: new Date().toISOString(),
       userName: state.userName,
       siteName: state.siteName,
@@ -1153,19 +1273,24 @@
   function buildMarkdownTable() {
     var sorted = state.entries.slice().sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
     var lines = [];
+    var totalMin = sumMinutes(state.entries);
     lines.push("### Practicum hours log");
     lines.push("");
     if (state.userName) lines.push("**Name:** " + state.userName);
     if (state.siteName) lines.push("**Site:** " + state.siteName);
-    lines.push("**Total:** " + fmtHM(sumMinutes(state.entries)) + " (" + fmtHM(categoryMinutes("direct")) + " direct, " + fmtHM(categoryMinutes("supervision")) + " supervision, " + fmtHM(categoryMinutes("indirect")) + " indirect)");
+    lines.push("**Total:** " + fmtHM(totalMin) + " of 600h  ·  Direct " + fmtHM(catMinutes("direct")) + " of 240h");
+    lines.push("**By category:** " + CATEGORIES.map(function (c) {
+      return c.label + " " + fmtHM(catMinutes(c.key));
+    }).join(" · "));
     lines.push("**Updated:** " + fmtDate(todayISO()));
     lines.push("");
-    lines.push("| Date | In | Out | Duration | Category | Note |");
-    lines.push("|---|---|---|---|---|---|");
+    lines.push("| Date | In | Out | Duration | Category | Client | Note |");
+    lines.push("|---|---|---|---|---|---|---|");
     sorted.forEach(function (e) {
       lines.push(
         "| " + fmtDate(e.date) + " | " + fmtTime12(e.timeIn) + " | " + fmtTime12(e.timeOut) + " | " +
-        fmtHM(entryMinutes(e)) + " | " + CATEGORY_LABELS[e.category] + " | " + (e.note || "").replace(/\|/g, "/") + " |"
+        fmtHM(entryMinutes(e)) + " | " + CATEGORY_LABELS[e.category] + " | " +
+        (e.clientInitials || "").replace(/\|/g, "/") + " | " + (e.note || "").replace(/\|/g, "/") + " |"
       );
     });
     return lines.join("\n");
@@ -1233,14 +1358,12 @@
         if (!data || typeof data !== "object" || !Array.isArray(data.entries)) {
           throw new Error("shape");
         }
-        var valid = data.entries.filter(isValidEntry);
+        var valid = data.entries.map(normalizeEntry).filter(isValidEntry);
         if (valid.length === 0 && data.entries.length > 0) throw new Error("shape");
         pendingImport = {
           userName: typeof data.userName === "string" ? data.userName : state.userName,
           siteName: typeof data.siteName === "string" ? data.siteName : state.siteName,
-          entries: valid.map(function (e) {
-            return { id: e.id || makeId(), date: e.date, timeIn: e.timeIn, timeOut: e.timeOut, category: e.category, note: typeof e.note === "string" ? e.note : "" };
-          })
+          entries: valid
         };
         var skipped = data.entries.length - valid.length;
         document.getElementById("importText").textContent =

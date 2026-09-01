@@ -17,17 +17,29 @@ opens by double-click or via the preview server.
   from the first logged entry.
 
 ## How the app works
-- Entries are time blocks: date + time in + time out + category
-  (direct / supervision / indirect) + optional note. Duration is always
+- Entries are time blocks: date + time in + time out + category +
+  optional client initials + optional activity note. Duration is always
   computed from the two times, stored and summed in integer minutes.
-- Data persists in localStorage under key `practicum-tracker-v1`:
-  `{ siteName, entries: [{id, date, timeIn, timeOut, category, note}] }`.
-- Export/Import buttons download and restore a JSON backup
-  (invalid entries in a backup are skipped, restore replaces all data).
+- Categories are the seven columns on the WPU "Record of Supervised
+  Hours" form: `direct`, `indSup` (individual supervision), `grpSup`
+  (group supervision), `indirect` (admin/indirect), `training`,
+  `research`, `other`. `CATEGORIES` in index.html is the single source of
+  truth — the select, filter chips, table pills and totals all derive
+  from it.
+- Data persists in localStorage under key `practicum-tracker-v2`:
+  `{ userName, siteName, entries: [{id, date, timeIn, timeOut, category,
+  clientInitials, note}] }`. On first load under v2 the old
+  `practicum-tracker-v1` store is migrated forward automatically (old
+  `supervision` category maps to `grpSup`); v1 is left in place as a
+  backup.
+- Export/Import buttons download and restore a JSON backup (`version: 2`;
+  version 1 files still import and get category-migrated, invalid entries
+  skipped, restore replaces all data).
 - UI: two SVG progress rings (600 total, 240 direct), stat cards,
   semester countdown cards, log form with inline validation and an
   overlap warning (overridable), filterable/sortable table with
-  two-step delete.
+  two-step delete, and a "Totals by category" bar chart under the table
+  mirroring the form's per-column totals.
 - No per-row edit — fixing a mistake means delete + re-add.
 
 ## Design
